@@ -1,0 +1,109 @@
+# Pinkeepr - Hardened OpenClaw Docker Compose for Umbrel/Portainer
+# 
+# Security features:
+# - No Docker socket mount (use Portainer API if container control needed)
+# - Non-root user (node:1000)
+# - Read-only root filesystem with tmpfs for runtime
+# - Dropped Linux capabilities
+# - No new privileges
+# - Tailscale-only network access (no public exposure)
+
+services:
+  pinkeepr:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: pinkeepr
+    hostname: pinkeepr
+    
+    # Security hardening
+    user: "1000:1000"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE  # Only if binding to privileged ports (not needed for 18789)
+    
+    # Prevent container escape
+    # NOTE: We do NOT mount /var/run/docker.sock
+    # Use Portainer API with scoped token if container control is needed
+    
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      NODE_ENV: production
+      
+      # Gateway configuration
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      
+      # Nostr channel (Pinkeepr's identity)
+      NOSTR_PRIVATE_KEY: ${PINKEEPR_NSEC}
+      
+      # Ollama LLM backend (on your laptop via Tailscale)
+      OLLAMA_API_KEY: ${OLLAMA_API_KEY:-ollama-local}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://100.79.12.80:11434}
+      
+      # Optional: Portainer API for container management
+      # PORTAINER_API_URL: ${PORTAINER_API_URL}
+      # PORTAINER_API_TOKEN: ${PORTAINER_API_TOKEN}
+    
+    volumes:
+      # Persistent config and state
+      - pinkeepr_config:/home/node/.openclaw
+      
+      # Workspace for agent operations (optional)
+      - pinkeepr_workspace:/home/node/.openclaw/workspace
+      
+      # Mount the hardened config file (read-only)
+      - ./config.json5:/home/node/.openclaw/config.json5:ro
+    
+    # tmpfs for runtime directories (read-only root needs writable tmp)
+    tmpfs:
+      - /tmp:mode=1777,size=64m
+      - /home/node/.npm:mode=755,size=32m
+    
+    # Network - bind only to Tailscale interface
+    # Replace with your Umbrel's Tailscale IP or use host networking if preferred
+    ports:
+      - "${TAILSCALE_IP:-127.0.0.1}:18789:18789"  # Gateway API
+      - "${TAILSCALE_IP:-127.0.0.1}:18790:18790"  # Bridge (if needed)
+    
+    # Alternatively, use host networking for full Tailscale integration:
+    # network_mode: host
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:18789/health').then(r => process.exit(r.ok ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Resource limits (adjust based on your hardware)
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Run the gateway
+    command:
+      - "node"
+      - "dist/index.js"
+      - "gateway"
+      - "--bind"
+      - "lan"
+      - "--port"
+      - "18789"
+
+volumes:
+  pinkeepr_config:
+    driver: local
+  pinkeepr_workspace:
+    driver: local

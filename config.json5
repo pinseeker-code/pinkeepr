@@ -1,0 +1,116 @@
+// Pinkeepr Configuration
+// OpenClaw instance secured for Nostr-only communication with Oracle
+{
+  // ============================================
+  // NOSTR CHANNEL - Primary communication
+  // ============================================
+  channels: {
+    nostr: {
+      // Enable the Nostr channel
+      enabled: true,
+      
+      // Bot's private key (from environment variable)
+      privateKey: "${PINKEEPR_NSEC}",
+      
+      // Private relay only - no public relays!
+      // Replace with your actual private relay URL
+      relays: [
+        "${NOSTR_RELAY_URL}"  // e.g., "ws://umbrel.local:4848"
+      ],
+      
+      // SECURITY: allowlist mode - only Oracle can message Pinkeepr
+      dmPolicy: "allowlist",
+      
+      // Oracle's npub - the ONLY identity Pinkeepr will respond to
+      allowFrom: [
+        "${ORACLE_NPUB}"  // e.g., "npub1abc..."
+      ],
+      
+      // Optional: Pinkeepr's Nostr profile metadata
+      profile: {
+        name: "Pinkeepr",
+        displayName: "Pinkeepr AI",
+        about: "Personal AI assistant. Private instance - invite only.",
+        // picture: "https://example.com/pinkeepr-avatar.png",
+        // nip05: "pinkeepr@yourdomain.com",
+      }
+    }
+  },
+
+  // ============================================
+  // MODEL PROVIDERS
+  // ============================================
+  models: {
+    providers: {
+      // Ollama - local models on your laptop via Tailscale
+      ollama: {
+        // Custom base URL pointing to your laptop's Ollama instance
+        baseUrl: "${OLLAMA_HOST}/v1",
+        apiKey: "${OLLAMA_API_KEY}",
+        api: "openai-completions",
+        
+        // Your installed Ollama model
+        models: [
+          {
+            id: "qwen2.5:3b",
+            name: "Qwen 2.5 3B",
+            reasoning: false,
+            input: ["text"],
+            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+            contextWindow: 32768,
+            maxTokens: 8192
+          }
+        ]
+      }
+    }
+  },
+
+  // ============================================
+  // AGENT DEFAULTS
+  // ============================================
+  agents: {
+    defaults: {
+      // Default model for all agents
+      model: {
+        primary: "ollama/qwen2.5:3b"
+      },
+      
+      // System prompt additions (optional)
+      // systemPromptSuffix: "You are Pinkeepr, a helpful AI assistant.",
+    }
+  },
+
+  // ============================================
+  // GATEWAY SETTINGS
+  // ============================================
+  gateway: {
+    // Run in local mode (no external services)
+    mode: "local",
+    
+    // Bind settings (controlled via docker-compose, but can override here)
+    // bind: "lan",
+    // port: 18789,
+  },
+
+  // ============================================
+  // SECURITY SETTINGS
+  // ============================================
+  security: {
+    // Require gateway token for API access
+    requireToken: true,
+    
+    // Disable web UI if not needed
+    // webUI: false,
+  },
+
+  // ============================================
+  // LOGGING
+  // ============================================
+  logging: {
+    // Log level: debug, info, warn, error
+    level: "info",
+    
+    // Don't log sensitive data
+    redactSecrets: true,
+  }
+}

@@ -1,0 +1,3 @@
+# Pinkeepr deployment files
+.env
+*.log
