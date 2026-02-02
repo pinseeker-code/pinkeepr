@@ -136,7 +136,7 @@ services:
             "nostr": {
               "enabled": true,
               "privateKey": "${NOSTR_PRIVATE_KEY}",
-              "relays": ["ws://100.94.28.97:4848"],
+              "relays": ["ws://172.20.0.1:4848"],
               "dmPolicy": "allowlist",
               "allowFrom": ["npub189t2vxteguxa02v9cnhl0xsp8ymjq6lk6af84dxkjjdx3ekyzqpq4c2el5"],
               "profile": {
