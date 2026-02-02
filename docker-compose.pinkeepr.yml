@@ -32,6 +32,7 @@ services:
       HOME: /home/node
       TERM: xterm-256color
       NODE_ENV: production
+      NODE_OPTIONS: "--max-old-space-size=512"
       
       # Gateway configuration
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
@@ -84,10 +85,10 @@ services:
       resources:
         limits:
           cpus: '2'
-          memory: 1G
+          memory: 2G
         reservations:
           cpus: '0.5'
-          memory: 256M
+          memory: 512M
     
     # Run the gateway
     command:
