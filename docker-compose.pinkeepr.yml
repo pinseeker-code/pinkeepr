@@ -35,6 +35,7 @@ services:
       
       # Gateway configuration
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      OPENCLAW_GATEWAY_MODE: local
       
       # Nostr channel (Pinkeepr's identity)
       NOSTR_PRIVATE_KEY: ${PINKEEPR_NSEC}
@@ -94,9 +95,10 @@ services:
       - "dist/index.js"
       - "gateway"
       - "--bind"
-      - "lan"
+      - "loopback"
       - "--port"
       - "18789"
+      - "--allow-unconfigured"
 
 volumes:
   pinkeepr_config:
