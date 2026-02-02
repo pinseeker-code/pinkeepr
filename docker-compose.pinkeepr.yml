@@ -150,8 +150,8 @@ services:
         EOFCONFIG
         fi
         
-        # Run gateway with Nostr channel enabled
-        exec node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured --channels nostr
+        # Run gateway (channels auto-start when enabled: true in config)
+        exec node dist/index.js gateway run --bind loopback --port 18789
 
 volumes:
   pinkeepr_config:
