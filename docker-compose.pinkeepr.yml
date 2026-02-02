@@ -145,7 +145,7 @@ services:
             "nostr": {
               "enabled": true,
               "privateKey": "$${NOSTR_PRIVATE_KEY}",
-              "relays": ["wss://relay.damus.io"],
+              "relays": ["wss://nos.lol", "wss://relay.primal.net"],
               "dmPolicy": "allowlist",
               "allowFrom": ["npub189t2vxteguxa02v9cnhl0xsp8ymjq6lk6af84dxkjjdx3ekyzqpq4c2el5"],
               "profile": {
