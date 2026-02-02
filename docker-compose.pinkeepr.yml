@@ -137,13 +137,7 @@ services:
         EOFCONFIG
         fi
         
-        # Install Nostr plugin if not present
-        if [ ! -d /home/node/.openclaw/plugins/@openclaw/nostr ]; then
-          echo "Installing Nostr plugin..."
-          node dist/index.js plugins install @openclaw/nostr || true
-        fi
-        
-        # Run gateway
+        # Run gateway (nostr plugin is bundled at /app/extensions/nostr)
         exec node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured
 
 volumes:
