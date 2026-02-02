@@ -88,6 +88,9 @@ services:
       - /bin/sh
       - -c
       - |
+        # Remove broken user-installed plugin (bundled version works)
+        rm -rf /home/node/.openclaw/extensions/nostr
+        
         # Write config file if it doesn't exist
         mkdir -p /home/node/.openclaw
         if [ ! -f /home/node/.openclaw/openclaw.json ]; then
