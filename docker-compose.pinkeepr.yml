@@ -32,7 +32,7 @@ services:
       HOME: /home/node
       TERM: xterm-256color
       NODE_ENV: production
-      NODE_OPTIONS: "--max-old-space-size=512"
+      NODE_OPTIONS: "--max-old-space-size=1536"
       
       # Gateway configuration
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
