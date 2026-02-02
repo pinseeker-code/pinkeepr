@@ -122,7 +122,7 @@ services:
               "enabled": true,
               "relays": ["ws://umbrel.technitium:4848"],
               "dmPolicy": "allowlist",
-              "allowFrom": ["npub1rxuynay46qlgqf66djn82tyxzaahjj03tt3svvknr2wt6athackqjry09z"],
+              "allowFrom": ["npub189t2vxteguxa02v9cnhl0xsp8ymjq6lk6af84dxkjjdx3ekyzqpq4c2el5"],
               "profile": {
                 "name": "Pinkeepr",
                 "displayName": "Pinkeepr AI",
@@ -134,7 +134,13 @@ services:
         EOFCONFIG
         fi
         
-        # Run gateway directly (container already runs as node via Dockerfile USER)
+        # Install Nostr plugin if not present
+        if [ ! -d /home/node/.openclaw/plugins/@openclaw/nostr ]; then
+          echo "Installing Nostr plugin..."
+          node dist/index.js plugins install @openclaw/nostr || true
+        fi
+        
+        # Run gateway
         exec node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured
 
 volumes:
