@@ -139,7 +139,7 @@ services:
             "nostr": {
               "enabled": true,
               "privateKey": "$${NOSTR_PRIVATE_KEY}",
-              "relays": ["ws://172.20.0.1:4848"],
+              "relays": ["wss://relay.damus.io"],
               "dmPolicy": "allowlist",
               "allowFrom": ["npub189t2vxteguxa02v9cnhl0xsp8ymjq6lk6af84dxkjjdx3ekyzqpq4c2el5"],
               "profile": {
