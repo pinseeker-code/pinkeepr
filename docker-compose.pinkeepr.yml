@@ -16,13 +16,10 @@ services:
     
     # Security hardening
     user: "1000:1000"
-    read_only: true
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    cap_add:
-      - NET_BIND_SERVICE  # Only if binding to privileged ports (not needed for 18789)
     
     # Prevent container escape
     # NOTE: We do NOT mount /var/run/docker.sock
@@ -44,6 +41,9 @@ services:
       # Ollama LLM backend (on your laptop via Tailscale)
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-ollama-local}
       OLLAMA_HOST: ${OLLAMA_HOST:-http://100.79.12.80:11434}
+      
+      # Default model
+      OPENCLAW_MODEL: ollama/qwen2.5:3b
       
       # Optional: Portainer API for container management
       # PORTAINER_API_URL: ${PORTAINER_API_URL}

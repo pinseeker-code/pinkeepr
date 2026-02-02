@@ -1,21 +1,24 @@
 // Pinkeepr Configuration
 // OpenClaw instance secured for Nostr-only communication with Oracle
+// NOTE: privateKey comes from NOSTR_PRIVATE_KEY env var
 {
+  // ============================================
+  // GATEWAY SETTINGS
+  // ============================================
+  gateway: {
+    mode: "local",
+  },
+
   // ============================================
   // NOSTR CHANNEL - Primary communication
   // ============================================
   channels: {
     nostr: {
-      // Enable the Nostr channel
       enabled: true,
       
-      // Bot's private key (from environment variable)
-      privateKey: "${PINKEEPR_NSEC}",
-      
-      // Private relay only - no public relays!
-      // Replace with your actual private relay URL
+      // Private relay only
       relays: [
-        "${NOSTR_RELAY_URL}"  // e.g., "ws://umbrel.local:4848"
+        "ws://umbrel.technitium:4848"
       ],
       
       // SECURITY: allowlist mode - only Oracle can message Pinkeepr
@@ -23,16 +26,14 @@
       
       // Oracle's npub - the ONLY identity Pinkeepr will respond to
       allowFrom: [
-        "${ORACLE_NPUB}"  // e.g., "npub1abc..."
+        "npub1rxuynay46qlgqf66djn82tyxzaahjj03tt3svvknr2wt6athackqjry09z"
       ],
       
-      // Optional: Pinkeepr's Nostr profile metadata
+      // Pinkeepr's profile metadata
       profile: {
         name: "Pinkeepr",
         displayName: "Pinkeepr AI",
         about: "Personal AI assistant. Private instance - invite only.",
-        // picture: "https://example.com/pinkeepr-avatar.png",
-        // nip05: "pinkeepr@yourdomain.com",
       }
     }
   },
@@ -42,14 +43,10 @@
   // ============================================
   models: {
     providers: {
-      // Ollama - local models on your laptop via Tailscale
       ollama: {
-        // Custom base URL pointing to your laptop's Ollama instance
-        baseUrl: "${OLLAMA_HOST}/v1",
-        apiKey: "${OLLAMA_API_KEY}",
+        baseUrl: "http://100.79.12.80:11434/v1",
+        apiKey: "ollama-local",
         api: "openai-completions",
-        
-        // Your installed Ollama model
         models: [
           {
             id: "qwen2.5:3b",
@@ -70,47 +67,17 @@
   // ============================================
   agents: {
     defaults: {
-      // Default model for all agents
       model: {
         primary: "ollama/qwen2.5:3b"
       },
-      
-      // System prompt additions (optional)
-      // systemPromptSuffix: "You are Pinkeepr, a helpful AI assistant.",
     }
-  },
-
-  // ============================================
-  // GATEWAY SETTINGS
-  // ============================================
-  gateway: {
-    // Run in local mode (no external services)
-    mode: "local",
-    
-    // Bind settings (controlled via docker-compose, but can override here)
-    // bind: "lan",
-    // port: 18789,
-  },
-
-  // ============================================
-  // SECURITY SETTINGS
-  // ============================================
-  security: {
-    // Require gateway token for API access
-    requireToken: true,
-    
-    // Disable web UI if not needed
-    // webUI: false,
   },
 
   // ============================================
   // LOGGING
   // ============================================
   logging: {
-    // Log level: debug, info, warn, error
     level: "info",
-    
-    // Don't log sensitive data
     redactSecrets: true,
   }
 }
