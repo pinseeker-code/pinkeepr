@@ -62,9 +62,10 @@ services:
       - /tmp:mode=1777,size=64m
       - /home/node/.npm:mode=755,size=32m
     
-    # Use host networking for Tailscale integration
-    # This allows the container to bind to Tailscale IPs directly
-    network_mode: host
+    # Bind to localhost only - access via Tailscale is handled at host level
+    # Security: container stays isolated, only localhost can reach the port
+    ports:
+      - "127.0.0.1:18789:18789"
     
     # Health check
     healthcheck:
