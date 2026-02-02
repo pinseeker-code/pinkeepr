@@ -107,7 +107,7 @@ services:
         # Write config file if it doesn't exist
         mkdir -p /home/node/.openclaw
         if [ ! -f /home/node/.openclaw/openclaw.json ]; then
-          cat > /home/node/.openclaw/openclaw.json << 'EOFCONFIG'
+          cat > /home/node/.openclaw/openclaw.json <<EOFCONFIG
         {
           "gateway": { "mode": "local" },
           "agents": {
@@ -136,6 +136,7 @@ services:
           "channels": {
             "nostr": {
               "enabled": true,
+              "privateKey": "${NOSTR_PRIVATE_KEY}",
               "relays": ["ws://100.94.28.97:4848"],
               "dmPolicy": "allowlist",
               "allowFrom": ["npub189t2vxteguxa02v9cnhl0xsp8ymjq6lk6af84dxkjjdx3ekyzqpq4c2el5"],
