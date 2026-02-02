@@ -112,6 +112,12 @@ services:
         cat > /home/node/.openclaw/openclaw.json <<EOFCONFIG
         {
           "gateway": { "mode": "local" },
+          "plugins": {
+            "allow": ["nostr"],
+            "entries": {
+              "nostr": { "enabled": true }
+            }
+          },
           "agents": {
             "defaults": {
               "model": { "primary": "ollama/qwen2.5:3b" }
