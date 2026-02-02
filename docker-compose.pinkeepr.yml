@@ -100,8 +100,9 @@ services:
         sed -i '/"prepare":/d' package.json
         sed -i '/"postinstall":/d' package.json
         # Install deps without any scripts
-        npm install --omit=dev --ignore-scripts --no-audit --no-fund 2>&1
+        npm install --omit=dev --ignore-scripts --no-audit --no-fund 2>&1 || true
         echo "npm install done"
+        cd /app
         
         # Write config file if it doesn't exist
         mkdir -p /home/node/.openclaw
