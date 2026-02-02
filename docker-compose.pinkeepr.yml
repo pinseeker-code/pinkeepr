@@ -91,13 +91,17 @@ services:
         # Remove any broken user-installed plugins
         rm -rf /home/node/.openclaw/extensions/nostr
         
-        # Fix nostr plugin dependencies (remove workspace:* and install deps)
+        # Fix nostr plugin dependencies
         echo "Installing nostr plugin dependencies..."
         cd /app/extensions/nostr
-        # Remove the workspace:* dependency that npm can't handle
+        # Remove workspace:* that npm can't handle
         sed -i '/"openclaw": "workspace:\*"/d' package.json
-        # Install the actual dependencies
-        npm install --omit=dev --ignore-scripts 2>&1 || echo "npm install done"
+        # Remove any scripts that might fail
+        sed -i '/"prepare":/d' package.json
+        sed -i '/"postinstall":/d' package.json
+        # Install deps without any scripts
+        npm install --omit=dev --ignore-scripts --no-audit --no-fund 2>&1
+        echo "npm install done"
         
         # Write config file if it doesn't exist
         mkdir -p /home/node/.openclaw
