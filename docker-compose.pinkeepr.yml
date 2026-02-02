@@ -149,6 +149,11 @@ services:
         }
         EOFCONFIG
         
+        # Debug: check if privateKey was interpolated
+        echo "=== Config written, checking privateKey field ==="
+        grep -o '"privateKey": "[^"]*"' /home/node/.openclaw/openclaw.json | head -c 50
+        echo "..."
+        
         # Run gateway (channels auto-start when enabled: true in config)
         exec node dist/index.js gateway run --bind loopback --port 18789
 
