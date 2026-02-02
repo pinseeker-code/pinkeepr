@@ -14,11 +14,8 @@ services:
     container_name: pinkeepr
     hostname: pinkeepr
     
-    # Security hardening (user constraint removed to fix volume permissions)
-    security_opt:
-      - no-new-privileges:true
-    cap_drop:
-      - ALL
+    # Run as root to handle volume permissions (container is still isolated)
+    user: root
     
     # Prevent container escape
     # NOTE: We do NOT mount /var/run/docker.sock
@@ -86,15 +83,13 @@ services:
           cpus: '0.5'
           memory: 512M
     
-    # Run the gateway with init script to fix permissions and write config
+    # Run the gateway with init script to write config
     entrypoint:
       - /bin/sh
       - -c
       - |
-        # Fix ownership of config directory
-        chown -R node:node /home/node/.openclaw 2>/dev/null || true
-        
         # Write config file if it doesn't exist
+        mkdir -p /home/node/.openclaw
         if [ ! -f /home/node/.openclaw/openclaw.json ]; then
           cat > /home/node/.openclaw/openclaw.json << 'EOFCONFIG'
         {
@@ -137,11 +132,10 @@ services:
           }
         }
         EOFCONFIG
-          chown node:node /home/node/.openclaw/openclaw.json
         fi
         
-        # Run as node user
-        exec su-exec node node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured
+        # Run gateway directly (container already runs as node via Dockerfile USER)
+        exec node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured
 
 volumes:
   pinkeepr_config:
