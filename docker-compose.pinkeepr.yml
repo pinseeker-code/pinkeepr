@@ -150,8 +150,8 @@ services:
         EOFCONFIG
         fi
         
-        # Run gateway (nostr plugin is bundled at /app/extensions/nostr)
-        exec node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured
+        # Run gateway with Nostr channel enabled
+        exec node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured --channels nostr
 
 volumes:
   pinkeepr_config:
