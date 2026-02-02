@@ -106,8 +106,8 @@ services:
         
         # Debug: check if env var is set
         echo "=== Checking NOSTR_PRIVATE_KEY env var ==="
-        echo "NOSTR_PRIVATE_KEY length: ${#NOSTR_PRIVATE_KEY}"
-        echo "First 20 chars: ${NOSTR_PRIVATE_KEY:0:20}..."
+        echo "NOSTR_PRIVATE_KEY length: $${#NOSTR_PRIVATE_KEY}"
+        echo "First 20 chars: $${NOSTR_PRIVATE_KEY:0:20}..."
         
         # Write config file (always regenerate to pick up changes)
         mkdir -p /home/node/.openclaw
