@@ -54,9 +54,6 @@ services:
       
       # Workspace for agent operations (optional)
       - pinkeepr_workspace:/home/node/.openclaw/workspace
-      
-      # Mount the hardened config file (read-only)
-      - ./config.json5:/home/node/.openclaw/config.json5:ro
     
     # tmpfs for runtime directories (read-only root needs writable tmp)
     tmpfs:
@@ -89,16 +86,62 @@ services:
           cpus: '0.5'
           memory: 512M
     
-    # Run the gateway
-    command:
-      - "node"
-      - "dist/index.js"
-      - "gateway"
-      - "--bind"
-      - "loopback"
-      - "--port"
-      - "18789"
-      - "--allow-unconfigured"
+    # Run the gateway with init script to fix permissions and write config
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        # Fix ownership of config directory
+        chown -R node:node /home/node/.openclaw 2>/dev/null || true
+        
+        # Write config file if it doesn't exist
+        if [ ! -f /home/node/.openclaw/openclaw.json ]; then
+          cat > /home/node/.openclaw/openclaw.json << 'EOFCONFIG'
+        {
+          "gateway": { "mode": "local" },
+          "agents": {
+            "defaults": {
+              "model": { "primary": "ollama/qwen2.5:3b" }
+            }
+          },
+          "models": {
+            "providers": {
+              "ollama": {
+                "baseUrl": "http://100.79.12.80:11434/v1",
+                "apiKey": "ollama-local",
+                "api": "openai-completions",
+                "models": [{
+                  "id": "qwen2.5:3b",
+                  "name": "Qwen 2.5 3B",
+                  "reasoning": false,
+                  "input": ["text"],
+                  "cost": { "input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0 },
+                  "contextWindow": 32768,
+                  "maxTokens": 8192
+                }]
+              }
+            }
+          },
+          "channels": {
+            "nostr": {
+              "enabled": true,
+              "relays": ["ws://umbrel.technitium:4848"],
+              "dmPolicy": "allowlist",
+              "allowFrom": ["npub1rxuynay46qlgqf66djn82tyxzaahjj03tt3svvknr2wt6athackqjry09z"],
+              "profile": {
+                "name": "Pinkeepr",
+                "displayName": "Pinkeepr AI",
+                "about": "Personal AI assistant. Private instance."
+              }
+            }
+          }
+        }
+        EOFCONFIG
+          chown node:node /home/node/.openclaw/openclaw.json
+        fi
+        
+        # Run as node user
+        exec su-exec node node dist/index.js gateway --bind loopback --port 18789 --allow-unconfigured
 
 volumes:
   pinkeepr_config:
