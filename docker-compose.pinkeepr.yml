@@ -104,10 +104,9 @@ services:
         echo "npm install done"
         cd /app
         
-        # Write config file if it doesn't exist
+        # Write config file (always regenerate to pick up changes)
         mkdir -p /home/node/.openclaw
-        if [ ! -f /home/node/.openclaw/openclaw.json ]; then
-          cat > /home/node/.openclaw/openclaw.json <<EOFCONFIG
+        cat > /home/node/.openclaw/openclaw.json <<EOFCONFIG
         {
           "gateway": { "mode": "local" },
           "agents": {
@@ -149,7 +148,6 @@ services:
           }
         }
         EOFCONFIG
-        fi
         
         # Run gateway (channels auto-start when enabled: true in config)
         exec node dist/index.js gateway run --bind loopback --port 18789
