@@ -88,8 +88,11 @@ services:
       - /bin/sh
       - -c
       - |
-        # Remove broken user-installed plugin (bundled version works)
+        # Remove broken user-installed plugin
         rm -rf /home/node/.openclaw/extensions/nostr
+        
+        # Install dependencies for bundled nostr plugin
+        cd /app/extensions/nostr && npm install --production --no-save 2>/dev/null || true
         
         # Write config file if it doesn't exist
         mkdir -p /home/node/.openclaw
