@@ -62,14 +62,9 @@ services:
       - /tmp:mode=1777,size=64m
       - /home/node/.npm:mode=755,size=32m
     
-    # Network - bind only to Tailscale interface
-    # Replace with your Umbrel's Tailscale IP or use host networking if preferred
-    ports:
-      - "${TAILSCALE_IP:-127.0.0.1}:18789:18789"  # Gateway API
-      - "${TAILSCALE_IP:-127.0.0.1}:18790:18790"  # Bridge (if needed)
-    
-    # Alternatively, use host networking for full Tailscale integration:
-    # network_mode: host
+    # Use host networking for Tailscale integration
+    # This allows the container to bind to Tailscale IPs directly
+    network_mode: host
     
     # Health check
     healthcheck:
