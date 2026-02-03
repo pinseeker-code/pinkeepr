@@ -31,8 +31,8 @@ services:
       OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
       OPENCLAW_GATEWAY_MODE: local
       
-      # Nostr channel (Pinkeepr's identity)
-      NOSTR_PRIVATE_KEY: ${PINKEEPR_NSEC}
+      # Signal channel (bot phone number)
+      SIGNAL_BOT_PHONE: ${SIGNAL_BOT_PHONE}
       
       # Ollama LLM backend (on your laptop via Tailscale)
       OLLAMA_API_KEY: ${OLLAMA_API_KEY:-ollama-local}
@@ -88,36 +88,19 @@ services:
       - /bin/sh
       - -c
       - |
-        # Remove any broken user-installed plugins
-        rm -rf /home/node/.openclaw/extensions/nostr
+        # Note: signal-cli requires Java. For Docker, we rely on signal-cli being pre-installed
+        # or available in the openclaw base image. If not available, uncomment below:
+        # apt-get update && apt-get install -y default-jre-headless wget
+        # Then download and install signal-cli manually
         
-        # Fix nostr plugin dependencies
-        echo "Installing nostr plugin dependencies..."
-        cd /app/extensions/nostr
-        # Remove workspace:* that npm can't handle
-        sed -i '/"openclaw": "workspace:\*"/d' package.json
-        # Remove any scripts that might fail
-        sed -i '/"prepare":/d' package.json
-        sed -i '/"postinstall":/d' package.json
-        # Install deps without any scripts
-        npm install --omit=dev --ignore-scripts --no-audit --no-fund 2>&1 || true
-        echo "npm install done"
-        cd /app
-        
-        # Debug: check if env var is set (length 63 = nsec key)
-        echo "=== NOSTR_PRIVATE_KEY length: $${#NOSTR_PRIVATE_KEY} ==="
+        # Debug: check if Signal bot phone is set
+        echo "=== SIGNAL_BOT_PHONE: $${SIGNAL_BOT_PHONE} ==="
         
         # Write config file (always regenerate to pick up changes)
         mkdir -p /home/node/.openclaw
-        cat > /home/node/.openclaw/openclaw.json <<EOFCONFIG
+        cat > /home/node/.openclaw/openclaw.json <<'EOFCONFIG'
         {
           "gateway": { "mode": "local" },
-          "plugins": {
-            "allow": ["nostr"],
-            "entries": {
-              "nostr": { "enabled": true }
-            }
-          },
           "agents": {
             "defaults": {
               "model": { "primary": "ollama/qwen2.5:3b" }
@@ -142,26 +125,19 @@ services:
             }
           },
           "channels": {
-            "nostr": {
+            "signal": {
               "enabled": true,
-              "privateKey": "$${NOSTR_PRIVATE_KEY}",
-              "relays": ["wss://nos.lol", "wss://relay.primal.net"],
-              "dmPolicy": "allowlist",
-              "allowFrom": ["npub189t2vxteguxa02v9cnhl0xsp8ymjq6lk6af84dxkjjdx3ekyzqpq4c2el5"],
-              "profile": {
-                "name": "Pinkeepr",
-                "displayName": "Pinkeepr AI",
-                "about": "Personal AI assistant. Private instance."
-              }
+              "account": "${SIGNAL_BOT_PHONE}",
+              "cliPath": "signal-cli",
+              "dmPolicy": "pairing"
             }
           }
         }
         EOFCONFIG
         
-        # Debug: check if privateKey was interpolated
-        echo "=== Config written, checking privateKey field ==="
-        grep -o '"privateKey": "[^"]*"' /home/node/.openclaw/openclaw.json | head -c 50
-        echo "..."
+        # Debug: check if config was written
+        echo "=== Signal config written ===" 
+        head -20 /home/node/.openclaw/openclaw.json
         
         # Run gateway (channels auto-start when enabled: true in config)
         exec node dist/index.js gateway run --bind loopback --port 18789
